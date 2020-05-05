@@ -48,6 +48,8 @@ $rules = New-Object psobject -Property @{
   BranchNamesMustMatchConventions              = [System.Convert]::ToBoolean((Get-VstsInput -Name "branchNamesMustMatchConventions" -Require))
 
   BypassBranchesWithNameMatchingPattern        = Get-VstsInput -Name "BypassBranchesWithNameMatchingPattern"
+
+  ErrorOnlyForTheCurrentBranch                 = [System.Convert]::ToBoolean((Get-VstsInput -Name "errorOnlyForTheCurrentBranch" -Require))
 }
 
 Write-Output "Project Collection: [$projectCollectionUri]"

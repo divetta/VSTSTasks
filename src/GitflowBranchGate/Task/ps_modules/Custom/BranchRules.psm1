@@ -168,7 +168,11 @@ Function Invoke-BranchRules {
           $branch | Add-Error -Type Error -Message  "Hotfix branch limit reached"
         }
         if ($branch.StaleDays -gt $Rules.HotfixDaysLimit) {
-          $branch | Add-Error -Type Error -Message "$($branch.BranchName) is stale and has reached hotfix days limit"
+          $type = "Error"
+          if ($Rules.ErrorOnlyForTheCurrentBranch -and $branch.BranchName -ne $Build.SourceBranch){
+            $type = "Warning"
+          }          
+          $branch | Add-Error -Type $type -Message "$($branch.BranchName) is stale and has reached hotfix days limit"
         }
 
         if ($Rules.MustNotHaveHotfixAndReleaseBranches -eq $true -and $($Branches | Where-Object {$_.BranchName -like $Rules.ReleasePrefix}).Count -gt 0) {
@@ -176,7 +180,11 @@ Function Invoke-BranchRules {
         }
 
         if ($Rules.HotfixeBranchesMustNotBeBehindMaster -eq $true -and $branch.Master.Behind -gt 0) {
-          $branch | Add-Error -Type Error -Message "$($branch.BranchName) is missing $($branch.Master.Behind) commit(s) from $($Rules.MasterBranch)"
+          $type = "Error"
+          if ($Rules.ErrorOnlyForTheCurrentBranch -and $branch.BranchName -ne $Build.SourceBranch){
+            $type = "Warning"
+          }
+          $branch | Add-Error -Type $type -Message "$($branch.BranchName) is missing $($branch.Master.Behind) commit(s) from $($Rules.MasterBranch)"
         }
         if ($Rules.HotfixBranchesMustNotHaveActivePullRequests -eq $true -and $branch.TargetPullRequests -gt 0 -and ($isPullRequestBuild -eq $false -or $isCurrentPullRequest -eq $false)) {
           $branch | Add-Error -Type Error -Message "$($branch.BranchName) has an active Pull Request."
@@ -191,7 +199,11 @@ Function Invoke-BranchRules {
           $branch | Add-Error -Type Error -Message "Release branch limit reached"
         }
         if ($branch.StaleDays -gt $Rules.ReleaseDaysLimit) {
-          $branch | Add-Error -Type Error -Message "$($branch.BranchName) is stale and has reached release days limit"
+          $type = "Error"
+          if ($Rules.ErrorOnlyForTheCurrentBranch -and $branch.BranchName -ne $Build.SourceBranch){
+            $type = "Warning"
+          }
+          $branch | Add-Error -Type $type -Message "$($branch.BranchName) is stale and has reached release days limit"
         }
 
         if ($Rules.MustNotHaveHotfixAndReleaseBranches -eq $true -and $($Branches | Where-Object {$_.BranchName -like $Rules.HotfixPrefix}).Count -gt 0) {
@@ -199,7 +211,11 @@ Function Invoke-BranchRules {
         }
 
         if ($Rules.ReleaseBranchesMustNotBeBehindMaster -eq $true -and $branch.Master.Behind -gt 0) {
-          $branch | Add-Error -Type Error -Message "$($branch.BranchName) is missing $($branch.Master.Behind) commit(s) from $($Rules.MasterBranch)"
+          $type = "Error"
+          if ($Rules.ErrorOnlyForTheCurrentBranch -and $branch.BranchName -ne $Build.SourceBranch){
+            $type = "Warning"
+          }
+          $branch | Add-Error -Type $type -Message "$($branch.BranchName) is missing $($branch.Master.Behind) commit(s) from $($Rules.MasterBranch)"
         }
         if ($Rules.ReleaseBranchesMustNotHaveActivePullRequests -eq $true -and $branch.TargetPullRequests -gt 0 -and ($isPullRequestBuild -eq $false -or $isCurrentPullRequest -eq $false)) {
           $branch | Add-Error -Type Error -Message "$($branch.BranchName) has an active Pull Request."
@@ -214,7 +230,11 @@ Function Invoke-BranchRules {
           $branch | Add-Error -Type Error -Message "Feature branch limit reached"
         }
         if ($branch.StaleDays -gt $Rules.FeatureDaysLimit) {
-          $branch | Add-Error -Type Error -Message "$($branch.BranchName) is stale and has reached feature days limit"
+          $type = "Error"
+          if ($Rules.ErrorOnlyForTheCurrentBranch -and $branch.BranchName -ne $Build.SourceBranch){
+            $type = "Warning"
+          }
+          $branch | Add-Error -Type $type -Message "$($branch.BranchName) is stale and has reached feature days limit"
         }
         if ($branch.Develop.Behind -gt 0) {
           $type = "Warning"
@@ -224,6 +244,9 @@ Function Invoke-BranchRules {
           if ($Rules.CurrentFeatureMustNotBeBehindDevelop -eq $true -and $branch.BranchName -eq $Build.SourceBranch) {
             $type = "Error"
           }
+          if ($Rules.ErrorOnlyForTheCurrentBranch -and $branch.BranchName -ne $Build.SourceBranch){
+            $type = "Warning"
+          }          
           $branch | Add-Error -Type $type -Message "$($branch.BranchName) is missing $($branch.Develop.Behind) commit(s) from $($Rules.DevelopBranch)"
         }
 
@@ -235,13 +258,21 @@ Function Invoke-BranchRules {
           if ($Rules.CurrentFeatureMustNotBeBehindMaster -eq $true -and $branch.BranchName -eq $Build.SourceBranch) {
             $type = "Error"
           }
+          if ($Rules.ErrorOnlyForTheCurrentBranch -and $branch.BranchName -ne $Build.SourceBranch){
+            $type = "Warning"
+          }          
           $branch | Add-Error -Type $type -Message "$($branch.BranchName) is missing $($branch.Master.Behind) commit(s) from $($Rules.MasterBranch)"
         }
       }
 
       if ($Rules.BranchNamesMustMatchConventions -eq $true) {
         if (($branch.BranchName -notlike $Rules.MasterBranch) -and ($branch.BranchName -notlike $Rules.DevelopBranch) -and ($branch.BranchName -notlike $Rules.HotfixPrefix) -and ($branch.BranchName -notlike $Rules.ReleasePrefix) -and ($branch.BranchName -notlike $Rules.FeaturePrefix)) {
-          $branch | Add-Error -Type Error -Message "$($branch.BranchName) branch does not follow naming convention i.e $($Rule.MasterBranch), $($Rules.DevelopBranch), $($Rules.HotfixPrefix), $($Rules.ReleasePrefix), $($Rules.FeaturePrefix)"
+          $type = "Error"
+          if ($Rules.ErrorOnlyForTheCurrentBranch -and $branch.BranchName -ne $Build.SourceBranch){
+            $type = "Warning"
+          }
+
+          $branch | Add-Error -Type $type -Message "$($branch.BranchName) branch does not follow naming convention i.e $($Rule.MasterBranch), $($Rules.DevelopBranch), $($Rules.HotfixPrefix), $($Rules.ReleasePrefix), $($Rules.FeaturePrefix)"
         }
       }
 

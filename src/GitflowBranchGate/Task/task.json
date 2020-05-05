@@ -15,9 +15,9 @@
   ],
   "demands": [],
   "version": {
-    "Major": "1",
+    "Major": "2",
     "Minor": "0",
-    "Patch": "4"
+    "Patch": "1"
   },
   "minimumAgentVersion": "1.91.0",
   "instanceNameFormat": "Gitflow Branch Gate",
@@ -277,6 +277,15 @@
       "helpMarkDown": "Turning this on will show the list of issues on the build summary.",
       "groupName": "advanced"
     },
+    {
+      "name": "errorOnlyForTheCurrentBranch",
+      "type": "boolean",
+      "label": "Create errors only for the current branch",
+      "defaultValue": "false",
+      "required": false,
+      "helpMarkDown": "Turning this on will create errors only for the current branch.",
+      "groupName": "advanced"
+    },    
     {
       "name": "authenticationType",
       "type": "pickList",
